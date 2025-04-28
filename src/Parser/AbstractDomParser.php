@@ -33,7 +33,16 @@ abstract class AbstractDomParser
 
         $document = new DOMDocument();
         $document->strictErrorChecking = false;
-        $document->loadXML(trim($content));
+
+        // Clean content
+        $content = trim($content);
+        // Convert to UTF-8 if needed
+        $encoding = mb_detect_encoding($content, 'UTF-8, ISO-8859-1, ISO-8859-15', true);
+        if ($encoding !== 'UTF-8') {
+            $content = mb_convert_encoding($content, 'UTF-8', $encoding);
+        }
+
+        $document->loadXML($content);
 
         libxml_use_internal_errors($previousValue);
 

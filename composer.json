@@ -19,7 +19,10 @@
         "desarrolla2/cache": ">=1.0.0",
         "fastfeed/url": ">=0.1.0",
         "guzzlehttp/guzzle": "7.x",
-        "ezyang/htmlpurifier": "^4.18"
+        "ezyang/htmlpurifier": "^4.18",
+        "ext-mbstring": "*",
+        "ext-dom": "*",
+        "ext-libxml": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "8.x"
