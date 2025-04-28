@@ -27,52 +27,44 @@ class FeedManagerExceptionTest extends AbstractFastFeedTest
     }
 
     /**
-     * @expectedException \FastFeed\Exception\LogicException
      * @dataProvider dataProviderForAddFeed
      */
     public function testAddFeed($channel, $feed)
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->fastFeed->addFeed($channel, $feed);
     }
 
     /**
-     * @expectedException \FastFeed\Exception\LogicException
      * @dataProvider dataProviderForAddFeed
      */
     public function testSetFeed($channel, $feed)
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->fastFeed->setFeed($channel, $feed);
     }
 
-    /**
-     * @expectedException \FastFeed\Exception\LogicException
-     */
     public function testGetFeed()
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->fastFeed->getFeed('this channel no exist');
     }
 
-    /**
-     * @expectedException \FastFeed\Exception\LogicException
-     */
     public function testPopParser()
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->fastFeed->popParser();
     }
 
-    /**
-     * @expectedException \FastFeed\Exception\LogicException
-     */
     public function testPopProcessor()
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->fastFeed->popProcessor();
     }
 
-    /**
-     * @expectedException \FastFeed\Exception\LogicException
-     */
     public function testFetch()
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->fastFeed->fetch(34);
     }
 }

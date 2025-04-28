@@ -21,7 +21,7 @@ use FastFeed\Tests\Parser\AbstractRSSParserTest;
  */
 class RSSContentAggregatorTest extends AbstractRSSParserTest
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->parser = new RSSParser();
         $this->parser->pushAggregator(new RSSContentAggregator());

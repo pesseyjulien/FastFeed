@@ -14,15 +14,15 @@
         "issues": "https://github.com/fastfeed/fastfeed/issues"
     },
     "require": {
-        "php": ">=5.4",
+        "php": "^7.2.5 || ^8.0",
         "psr/log": "~1.0",
         "desarrolla2/cache": ">=1.0.0",
         "fastfeed/url": ">=0.1.0",
-        "guzzlehttp/guzzle": ">=3.7",
-        "egeloen/http-adapter": ">=0.6"
+        "guzzlehttp/guzzle": "7.x",
+        "ezyang/htmlpurifier": "^4.18"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8"
+        "phpunit/phpunit": "8.x"
     },
     "autoload": {
         "psr-4": {

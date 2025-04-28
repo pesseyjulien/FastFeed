@@ -28,7 +28,7 @@ class StripTagsProcessorTest extends TestCase
      */
     protected $items;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->processor = new StripTagsProcessor();
         $this->items = array(new Item());

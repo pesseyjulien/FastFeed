@@ -17,7 +17,7 @@ use FastFeed\Tests\AbstractFastFeedTest;
  */
 class FastFeedManagerExceptionTest extends AbstractFastFeedTest
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -25,11 +25,9 @@ class FastFeedManagerExceptionTest extends AbstractFastFeedTest
         $this->fastFeed->addFeed('desarrolla2', 'http://desarrolla2.com/feed/');
     }
 
-    /**
-     * @expectedException \FastFeed\Exception\LogicException
-     */
     public function testException()
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->fastFeed->fetch('desarrolla2');
     }
 }

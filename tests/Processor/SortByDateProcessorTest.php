@@ -29,7 +29,7 @@ class SortByDateProcessorTest extends TestCase
      */
     protected $items;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->processor = new SortByDateProcessor();
         $this->items = array();

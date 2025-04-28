@@ -10,7 +10,9 @@
 namespace FastFeed\Tests;
 
 use FastFeed\FastFeed;
+use GuzzleHttp\ClientInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * AbstractFeedManagerTest
@@ -23,25 +25,27 @@ abstract class AbstractFastFeedTest extends TestCase
     protected $fastFeed;
 
     /**
-     * @var \Guzzle\Http\ClientInterface
-     */
-    protected $guzzleMock;
-
-    /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $loggerMock;
 
-    public function setUp()
+    /**
+     * @var ClientInterface
+     */
+    protected $httpMock;
+
+    public function setUp(): void
     {
-        $this->httpMock = $this->getMockBuilder('Ivory\HttpAdapter\GuzzleHttpAdapter')
+        $this->httpMock = $this->getMockBuilder(ClientInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->loggerMock = $this->getMockBuilder('Psr\Log\LoggerInterface')
+        $this->loggerMock = $this->getMockBuilder(LoggerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->fastFeed = new FastFeed($this->httpMock, $this->loggerMock);
+
+        parent::setUp();
     }
 }

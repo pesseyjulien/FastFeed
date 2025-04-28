@@ -28,7 +28,7 @@ class PathProcessorTest extends TestCase
      */
     protected $items;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->processor = new PathProcessor();
         $this->items = array(new Item());

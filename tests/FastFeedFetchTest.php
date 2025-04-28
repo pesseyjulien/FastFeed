@@ -10,20 +10,21 @@
 namespace FastFeed\Tests;
 
 use FastFeed\Parser\RSSParser;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * FastFeedFetchTest
  */
 class FastFeedFetchTest extends AbstractFastFeedTest
 {
-    public function dataProvider()
+    public function dataProvider(): array
     {
-        $content = file_get_contents(__DIR__.'/data/rss20/desarrolla2.com.xml');
-
         return array(
-            array(false),
-            array('nothing here'),
-            array($content),
+            [''],
+            ['nothing here'],
+            [file_get_contents(__DIR__.'/data/rss20/desarrolla2.com.xml')],
         );
     }
 
@@ -32,30 +33,26 @@ class FastFeedFetchTest extends AbstractFastFeedTest
      */
     public function testFetch($content)
     {
-        $responseMock = $this->getMockBuilder('Guzzle\Http\Message\Response')
+        $responseMock = $this->getMockBuilder(ResponseInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $this->httpMock->expects($this->once())
+            ->method('request')
+            ->will($this->returnValue($responseMock));
 
         $responseMock
             ->expects($this->once())
-            ->method('isSuccessful')
-            ->will($this->returnValue(true));
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $responseMock->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($content));
+            ->willReturn($stream = $this->createMock(StreamInterface::class));
 
-        $requestMock = $this->getMockBuilder('Guzzle\Http\Message\Request')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $requestMock->expects($this->once())
-            ->method('send')
-            ->will($this->returnValue($responseMock));
-
-        $this->httpMock->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($requestMock));
+        $stream->expects($this->once())
+            ->method('getContents')
+            ->willReturn($content);
 
         $this->fastFeed->addFeed('desarrolla2', 'http://desarrolla2.com/feed/');
         $this->fastFeed->pushParser(new RSSParser());

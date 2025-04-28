@@ -28,7 +28,7 @@ class SanitizerProcessorTest extends TestCase
      */
     protected $items;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->processor = new SanitizerProcessor();
         $this->items = array(new Item());

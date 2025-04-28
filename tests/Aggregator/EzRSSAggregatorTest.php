@@ -28,7 +28,7 @@ class EzRSSAggregatorTest extends AbstractRSSParserTest
         'kickass.to.xml',
     );
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parser = new RSSParser();
         $this->parser->pushAggregator(new EzRSSAggregator());

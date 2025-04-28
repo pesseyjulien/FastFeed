@@ -35,7 +35,7 @@ abstract class AbstractAtomParserTest extends AbstractParserTest
         'unawebmaslibre.blogspot.com.xml',
     );
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parser = new AtomParser();
     }

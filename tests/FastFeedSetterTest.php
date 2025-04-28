@@ -9,6 +9,11 @@
  */
 namespace FastFeed\Tests;
 
+use FastFeed\Parser\ParserInterface;
+use FastFeed\Processor\ProcessorInterface;
+use GuzzleHttp\ClientInterface;
+use Psr\Log\LoggerInterface;
+
 /**
  * FastFeedSetterTest
  */
@@ -16,39 +21,39 @@ class FastFeedSetterTest extends AbstractFastFeedTest
 {
     public function testSetGuzzle()
     {
-        $guzzleMock = $this->getMock('Guzzle\Http\ClientInterface');
+        $guzzleMock = $this->createMock(ClientInterface::class);
         $this->assertNull($this->fastFeed->setHttpClient($guzzleMock));
     }
 
     public function testSetLogger()
     {
-        $loggerMock = $this->getMock('Psr\Log\LoggerInterface');
+        $loggerMock = $this->createMock(LoggerInterface::class);
         $this->assertNull($this->fastFeed->setLogger($loggerMock));
     }
 
     public function testPushParser()
     {
-        $parserMock = $this->getMock('FastFeed\Parser\ParserInterface');
+        $parserMock = $this->createMock(ParserInterface::class);
         $this->assertNull($this->fastFeed->pushParser($parserMock));
     }
 
     public function testPopParser()
     {
-        $parserMock = $this->getMock('FastFeed\Parser\ParserInterface');
+        $parserMock = $this->createMock(ParserInterface::class);
         $this->fastFeed->pushParser($parserMock);
-        $this->assertInstanceOf('FastFeed\Parser\ParserInterface', $this->fastFeed->popParser());
+        $this->assertInstanceOf(ParserInterface::class, $this->fastFeed->popParser());
     }
 
     public function testPushProcessor()
     {
-        $processorMock = $this->getMock('FastFeed\Processor\ProcessorInterface');
+        $processorMock = $this->createMock(ProcessorInterface::class);
         $this->assertNull($this->fastFeed->pushProcessor($processorMock));
     }
 
     public function testPopProcessor()
     {
-        $processorMock = $this->getMock('FastFeed\Processor\ProcessorInterface');
+        $processorMock = $this->createMock(ProcessorInterface::class);
         $this->fastFeed->pushProcessor($processorMock);
-        $this->assertInstanceOf('FastFeed\Processor\ProcessorInterface', $this->fastFeed->popProcessor());
+        $this->assertInstanceOf(ProcessorInterface::class, $this->fastFeed->popProcessor());
     }
 }

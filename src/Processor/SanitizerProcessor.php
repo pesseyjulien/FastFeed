@@ -41,8 +41,7 @@ class SanitizerProcessor implements ProcessorInterface
         if (!is_writable($cacheDirectory)) {
             throw new InvalidArgumentException($cacheDirectory.' is not writable');
         }
-        // require to configure some CONSTANST
-        new \HTMLPurifier_Bootstrap();
+        // require to configure some CONSTANT
         $config = \HTMLPurifier_Config::createDefault();
         $config->set('Cache.SerializerPath', $cacheDirectory);
         $this->purifier = new \HTMLPurifier($config);

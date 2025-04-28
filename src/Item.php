@@ -139,7 +139,7 @@ class Item
      */
     public function hasImage()
     {
-        return strlen($this->image) ? true : false;
+        return $this->image !== null && strlen($this->image);
     }
 
     /**

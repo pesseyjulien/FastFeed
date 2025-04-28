@@ -13,6 +13,9 @@ use FastFeed\Tests\AbstractFastFeedTest;
 use FastFeed\Cache\FastFeed;
 use FastFeed\Item;
 use Desarrolla2\Cache\CacheInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * FastFeedTest
@@ -24,11 +27,11 @@ class FastFeedTest extends AbstractFastFeedTest
      */
     protected $cacheMock;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
-        $this->cacheMock = $this->getMockBuilder('Desarrolla2\Cache\CacheInterface')
+        $this->cacheMock = $this->getMockBuilder(CacheInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -39,7 +42,7 @@ class FastFeedTest extends AbstractFastFeedTest
 
     public function testGetCache()
     {
-        $this->assertInstanceOf('Desarrolla2\Cache\CacheInterface', $this->fastFeed->getCache());
+        $this->assertInstanceOf(CacheInterface::class, $this->fastFeed->getCache());
     }
 
     public function testWithCache()
@@ -69,30 +72,26 @@ class FastFeedTest extends AbstractFastFeedTest
             ->method('set')
             ->will($this->returnValue(true));
 
-        $responseMock = $this->getMockBuilder('Guzzle\Http\Message\Response')
+        $responseMock = $this->getMockBuilder(ResponseInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $this->httpMock->expects($this->once())
+            ->method('request')
+            ->will($this->returnValue($responseMock));
 
         $responseMock
             ->expects($this->once())
-            ->method('isSuccessful')
-            ->will($this->returnValue(true));
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $responseMock->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue(array(new Item())));
+            ->willReturn($stream = $this->createMock(StreamInterface::class));
 
-        $requestMock = $this->getMockBuilder('Guzzle\Http\Message\Request')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $requestMock->expects($this->once())
-            ->method('send')
-            ->will($this->returnValue($responseMock));
-
-        $this->httpMock->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($requestMock));
+        $stream->expects($this->once())
+            ->method('getContents')
+            ->willReturn('content');
 
         $this->fastFeed->fetch('desarrolla2');
     }

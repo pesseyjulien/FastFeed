@@ -10,6 +10,7 @@
 namespace FastFeed\Tests;
 
 use FastFeed\Parser\RSSParser;
+use GuzzleHttp\Psr7\Response;
 
 /**
  * FastFeedLoggerTest
@@ -18,36 +19,27 @@ class FastFeedLoggerTest extends AbstractFastFeedTest
 {
     public function testFetch()
     {
-        $responseMock = $this->getMockBuilder('Guzzle\Http\Message\Response')
+        $responseMock = $this->getMockBuilder(Response::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $this->httpMock->expects($this->once())
+            ->method('request')
+            ->will($this->returnValue($responseMock));
 
         $responseMock
             ->expects($this->once())
-            ->method('isSuccessful')
-            ->will($this->returnValue(false));
-
-        $responseMock->expects($this->once())
             ->method('getStatusCode')
-            ->will($this->returnValue(500));
+            ->willReturn(500);
 
-        $requestMock = $this->getMockBuilder('Guzzle\Http\Message\Request')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $requestMock->expects($this->once())
-            ->method('send')
-            ->will($this->returnValue($responseMock));
-
-        $this->httpMock->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue($requestMock));
+        $responseMock->expects($this->never())
+            ->method('getBody');
 
         $this->loggerMock->expects($this->once())
             ->method('log')
             ->will($this->returnValue(true));
 
-        $this->fastFeed->addFeed('desarrolla2', 'http://desarrolla2.com/feed/');
+        $this->fastFeed->addFeed('desarrolla2', 'https://desarrolla2.com/feed/');
         $this->fastFeed->pushParser(new RSSParser());
         $this->fastFeed->fetch('desarrolla2');
     }

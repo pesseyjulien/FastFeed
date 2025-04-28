@@ -17,7 +17,7 @@ use FastFeed\Parser\AtomParser;
  */
 class AtomParserFirstElementTest extends AbstractAtomParserTest
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->parser = new AtomParser();
     }

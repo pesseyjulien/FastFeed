@@ -13,15 +13,10 @@
 
 namespace FastFeed;
 
-use Ivory\HttpAdapter\HttpAdapterInterface;
-use Ivory\HttpAdapter\Message\InternalRequest;
-use Ivory\HttpAdapter\Message\Request;
-use Ivory\HttpAdapter\MultiHttpAdapterException;
-
-use Guzzle\Http\ClientInterface;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-
 use FastFeed\Exception\LogicException;
 use FastFeed\Parser\ParserInterface;
 use FastFeed\Processor\ProcessorInterface;
@@ -66,11 +61,7 @@ class FastFeed implements FastFeedInterface
      */
     protected $feeds = array();
 
-    /**
-     * @param HttpAdapterInterface $http
-     * @param LoggerInterface      $logger
-     */
-    public function __construct($http, LoggerInterface $logger)
+    public function __construct(ClientInterface $http, LoggerInterface $logger)
     {
         $this->http = $http;
         $this->logger = $logger;
@@ -94,9 +85,9 @@ class FastFeed implements FastFeedInterface
 
     /**
      * @param string $channel
-     *
      * @return Item[]
      * @throws Exception\LogicException
+     * @throws GuzzleException
      */
     public function fetch($channel = 'default')
     {
@@ -219,34 +210,30 @@ class FastFeed implements FastFeedInterface
 
     /**
      * Retrieve content from a resource
-     *
-     * @param $url
-     *
-     * @return \Guzzle\Http\EntityBodyInterface|string
+     * @param string $url
+     * @return ?string
+     * @throws GuzzleException
      */
     protected function get($url)
     {
-        $request = $this->http->get(
-            $url,
-            array('User-Agent' => self::USER_AGENT.' v.'.self::VERSION)
-        );
+        $response = $this->http->request('GET', $url);
 
-        $response = $request->send();
+        $statusCode = $response->getStatusCode();
 
-        if (!$response->isSuccessful()) {
-            $this->log('fail with '.$response->getStatusCode().' http code in url "'.$url.'" ');
-
-            return;
+        if ($statusCode < 200 || $statusCode >= 304) {
+            $this->log('fail with '.$statusCode.' http code in url "'.$url.'" ');
+            return null;
         }
+
         $this->logger->log(LogLevel::INFO, 'retrieved url "'.$url.'" ');
 
-        return $response->getBody();
+        return $response->getBody()->getContents();
     }
 
     /**
-     * @param $channel
-     *
+     * @param string $channel
      * @return array
+     * @throws GuzzleException
      */
     protected function retrieve($channel)
     {

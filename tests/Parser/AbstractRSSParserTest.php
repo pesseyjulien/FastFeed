@@ -40,7 +40,7 @@ abstract class AbstractRSSParserTest extends AbstractParserTest
         'ubuntuleon.com.xml',
     );
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parser = new RSSParser();
     }

@@ -9,6 +9,7 @@
  */
 namespace FastFeed\Tests\Parser;
 
+use FastFeed\Aggregator\AggregatorInterface;
 use FastFeed\Parser\RSSParser;
 use PHPUnit\Framework\TestCase;
 
@@ -21,29 +22,31 @@ class ParserSetterTest extends TestCase
      * @var RSSParser
      */
     protected $parser;
-    public function setUp()
+
+    public function setUp(): void
     {
         $this->parser = new RSSParser();
     }
 
     public function testPushProcessor()
     {
-        $aggregatorMock = $this->getMock('FastFeed\Aggregator\AggregatorInterface');
+        $aggregatorMock = $this->createMock(AggregatorInterface::class);
         $this->assertNull($this->parser->pushAggregator($aggregatorMock));
     }
 
     public function testPopParser()
     {
-        $aggregatorMock = $this->getMock('FastFeed\Aggregator\AggregatorInterface');
+        $aggregatorMock = $this->createMock(AggregatorInterface::class);
         $this->parser->pushAggregator($aggregatorMock);
-        $this->assertInstanceOf('FastFeed\Aggregator\AggregatorInterface', $this->parser->popAggregator());
+        $this->assertInstanceOf(
+            AggregatorInterface::class,
+            $this->parser->popAggregator()
+        );
     }
 
-    /**
-     * @expectedException \FastFeed\Exception\LogicException
-     */
     public function testPopProcessor()
     {
+        $this->expectException(\FastFeed\Exception\LogicException::class);
         $this->parser->popAggregator();
     }
 }

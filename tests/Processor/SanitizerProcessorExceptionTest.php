@@ -28,16 +28,14 @@ class SanitizerProcessorExceptionTest extends TestCase
      */
     protected $items;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->items = array(new Item());
     }
 
-    /**
-     * @expectedException \FastFeed\Exception\InvalidArgumentException
-     */
     public function testException()
     {
+        $this->expectException(\FastFeed\Exception\InvalidArgumentException::class);
         $this->processor = new SanitizerProcessor('/');
         $this->processor->process($this->items);
     }

@@ -15,9 +15,9 @@ namespace FastFeed\Cache;
 
 use Desarrolla2\Cache\CacheInterface;
 
-use FastFeed\Exception;
 use FastFeed\Exception\LogicException;
 use FastFeed\FastFeed as FastFeedBase;
+use Psr\SimpleCache\InvalidArgumentException;
 
 /**
  * FastFeed
@@ -48,7 +48,8 @@ class FastFeed extends FastFeedBase
     /**
      * @param string $channel
      *
-     * @return array|CacheInterface
+     * @return array
+     * @throws InvalidArgumentException
      */
     public function fetch($channel = 'default')
     {
@@ -64,8 +65,8 @@ class FastFeed extends FastFeedBase
     /**
      * @param string $channel
      *
-     * @return array
-     * @throws \FastFeed\Exception\LogicException
+     * @return ?array
+     * @throws LogicException|InvalidArgumentException
      */
     protected function getFromCache($channel)
     {
@@ -76,12 +77,13 @@ class FastFeed extends FastFeedBase
             return $this->getCache()->get($channel);
         }
 
-        return false;
+        return null;
     }
 
     /**
      * @param string $channel
-     * @param array  $items
+     * @param array $items
+     * @throws InvalidArgumentException
      */
     protected function setToCache($channel, $items)
     {

@@ -25,7 +25,7 @@ class LoggerTest extends TestCase
     /**
      *
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->logger = new Logger(false);
     }

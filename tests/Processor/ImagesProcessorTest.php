@@ -28,7 +28,7 @@ class ImagesProcessorTest extends TestCase
      */
     protected $items;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->processor = new ImagesProcessor();
         $this->items = array(new Item());
