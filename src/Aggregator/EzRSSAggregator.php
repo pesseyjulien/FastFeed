@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -30,7 +32,7 @@ class EzRSSAggregator extends AbstractAggregator implements AggregatorInterface
      * @param DOMElement $node
      * @param Item       $item
      */
-    public function process(DOMElement $node, Item $item)
+    public function process(DOMElement $node, Item $item): void
     {
         foreach ($this->keys as $key) {
             $item->setExtra($key, $this->getValue($node, $key));
@@ -43,7 +45,7 @@ class EzRSSAggregator extends AbstractAggregator implements AggregatorInterface
      *
      * @return bool|string
      */
-    protected function getValue(DOMElement $node, $tagName)
+    protected function getValue(DOMElement $node, string $tagName)
     {
         return $this->getNodeValueByTagNameNS($node, 'http://xmlns.ezrss.it/0.1/', $tagName);
     }

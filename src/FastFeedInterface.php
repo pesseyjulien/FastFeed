@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -32,7 +34,7 @@ interface FastFeedInterface
      *
      * @throws InvalidArgumentException
      */
-    public function addFeed($channel, $feed);
+    public function addFeed(string $channel, string $feed): void;
 
     /**
      * @param string $channel
@@ -40,58 +42,58 @@ interface FastFeedInterface
      * @return array
      * @throws Exception\InvalidArgumentException
      */
-    public function fetch($channel = 'default');
+    public function fetch(string $channel = 'default'): array;
 
     /**
      * Retrieve a channel
      *
      * @param string $channel
      *
-     * @return string
+     * @return array
      * @throws LogicException
      */
-    public function getFeed($channel);
+    public function getFeed(string $channel): array;
 
     /**
      * @return ParserInterface
      * @throws Exception\LogicException
      */
-    public function popParser();
+    public function popParser(): ParserInterface;
 
     /**
      * @param ParserInterface $parser
      */
-    public function pushParser(ParserInterface $parser);
+    public function pushParser(ParserInterface $parser): void;
 
     /**
      * @return ProcessorInterface
      * @throws Exception\LogicException
      */
-    public function popProcessor();
+    public function popProcessor(): ProcessorInterface;
 
     /**
      * @param ProcessorInterface $processor
      */
-    public function pushProcessor(ProcessorInterface $processor);
+    public function pushProcessor(ProcessorInterface $processor): void;
 
     /**
      * Retrieve all channels
      *
      * @return array
      */
-    public function getFeeds();
+    public function getFeeds(): array;
 
     /**
      * Set Guzzle
      *
      * @param ClientInterface $guzzle
      */
-    public function setHttpClient(ClientInterface $guzzle);
+    public function setHttpClient(ClientInterface $guzzle): void;
 
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger);
+    public function setLogger(LoggerInterface $logger): void;
 
     /**
      * Set a channel
@@ -101,5 +103,5 @@ interface FastFeedInterface
      *
      * @throws InvalidArgumentException
      */
-    public function setFeed($channel, $feed);
+    public function setFeed(string $channel, string $feed): void;
 }

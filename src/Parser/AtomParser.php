@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -34,7 +36,7 @@ class AtomParser extends AbstractParser implements ParserInterface
      * @return array
      * @throws \FastFeed\Exception\RuntimeException
      */
-    public function getNodes($content)
+    public function getNodes(string $content): array
     {
         $items = [];
         $document = $this->createDocumentFromXML($content);
@@ -58,7 +60,7 @@ class AtomParser extends AbstractParser implements ParserInterface
      *
      * @return Item
      */
-    public function create(DOMElement $node)
+    public function create(DOMElement $node): Item
     {
         $item = new Item();
         $this->setProperties($node, $item);
@@ -66,9 +68,10 @@ class AtomParser extends AbstractParser implements ParserInterface
         $this->setAuthor($node, $item);
         $this->setDate($node, $item);
         $this->setTags($node, $item);
+        $this->setMediaImages($node, $item);
         $this->executeAggregators($node, $item);
 
-        if (!$item->getIntro()) {
+        if (!$item->getIntro() && $item->getContent() !== null) {
             $item->setIntro($item->getContent());
         }
 
@@ -78,7 +81,7 @@ class AtomParser extends AbstractParser implements ParserInterface
     /**
      * @return array
      */
-    protected function getPropertiesMapping()
+    protected function getPropertiesMapping(): array
     {
         return [
             'setId' => 'id',
@@ -92,7 +95,7 @@ class AtomParser extends AbstractParser implements ParserInterface
      * @param DOMElement $node
      * @param Item       $item
      */
-    protected function setLink(DOMElement $node, Item $item)
+    protected function setLink(DOMElement $node, Item $item): void
     {
         $nodeList = $node->getElementsByTagName('link');
         if ($nodeList->length) {
@@ -111,7 +114,7 @@ class AtomParser extends AbstractParser implements ParserInterface
      * @param DOMElement $node
      * @param Item       $item
      */
-    protected function setAuthor(DOMElement $node, Item $item)
+    protected function setAuthor(DOMElement $node, Item $item): void
     {
         $nodeList = $node->getElementsByTagName('author');
         if ($nodeList->length) {
@@ -130,9 +133,12 @@ class AtomParser extends AbstractParser implements ParserInterface
      * @param DOMElement $node
      * @param Item       $item
      */
-    protected function setDate(DOMElement $node, Item $item)
+    protected function setDate(DOMElement $node, Item $item): void
     {
         $value = $this->getNodeValueByTagName($node, 'published');
+        if (!$value) {
+            $value = $this->getNodeValueByTagName($node, 'updated');
+        }
         if ($value) {
             if (strtotime($value)) {
                 $item->setDate(new DateTime($value));
@@ -144,11 +150,47 @@ class AtomParser extends AbstractParser implements ParserInterface
      * @param DOMElement $node
      * @param Item       $item
      */
-    protected function setTags(DOMElement $node, Item $item)
+    protected function setTags(DOMElement $node, Item $item): void
     {
         $tags = $this->getNodePropertyByTagName($node, 'category', 'term');
         foreach ($tags as $tag) {
             $item->addTag($tag);
+        }
+    }
+
+    /**
+     * Parse enclosures to set default image
+     *
+     * @param DOMElement $node
+     * @param Item       $item
+     */
+    protected function setMediaImages(DOMElement $node, Item $item): void
+    {
+        $links = $node->getElementsByTagName('link');
+        foreach ($links as $link) {
+            if ($link->getAttribute('rel') === 'enclosure') {
+                $type = $link->getAttribute('type');
+                $href = $link->getAttribute('href');
+                if ($href && (strpos($type, 'image/') === 0 || preg_match('/\.(jpg|jpeg|png|gif|webp|svg)/i', $href))) {
+                    $item->setImage($href);
+                    return;
+                }
+            }
+        }
+
+        $thumbnails = $node->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail');
+        if (!$thumbnails->length) {
+            $thumbnails = $node->getElementsByTagName('media:thumbnail');
+        }
+        if (!$thumbnails->length) {
+            $thumbnails = $node->getElementsByTagName('thumbnail');
+        }
+        foreach ($thumbnails as $thumbnail) {
+            $url = $thumbnail->getAttribute('url');
+            if ($url) {
+                $item->setImage($url);
+                return;
+            }
         }
     }
 }

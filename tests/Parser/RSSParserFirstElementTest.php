@@ -124,7 +124,42 @@ class RSSParserFirstElementTest extends AbstractRSSParserTest
      */
     public function testImage(Item $item, $content, $fileName)
     {
-        $expected = null;
+        $dom = new \DOMDocument();
+        $dom->loadXML(trim($content));
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('media', 'http://search.yahoo.com/mrss/');
+        
+        $expected = '';
+        
+        $enclosures = $xpath->query("//item[1]/enclosure");
+        if ($enclosures->length) {
+            $type = $enclosures->item(0)->getAttribute('type');
+            $url = $enclosures->item(0)->getAttribute('url');
+            if ($url && (strpos($type, 'image/') === 0 || preg_match('/\.(jpg|jpeg|png|gif|webp|svg)/i', $url))) {
+                $expected = $url;
+            }
+        }
+        
+        if (!$expected) {
+            $mediaContents = $xpath->query("//item[1]/media:content");
+            if ($mediaContents->length) {
+                $url = $mediaContents->item(0)->getAttribute('url');
+                $medium = $mediaContents->item(0)->getAttribute('medium');
+                if ($url && ($medium === 'image' || preg_match('/\.(jpg|jpeg|png|gif|webp|svg)/i', $url))) {
+                    $expected = $url;
+                }
+            }
+        }
+        
+        if (!$expected) {
+            $mediaThumbnails = $xpath->query("//item[1]/media:thumbnail");
+            if (!$mediaThumbnails->length) {
+                $mediaThumbnails = $xpath->query("//item[1]/thumbnail");
+            }
+            if ($mediaThumbnails->length) {
+                $expected = $mediaThumbnails->item(0)->getAttribute('url');
+            }
+        }
 
         $this->assertEquals(
             $expected,

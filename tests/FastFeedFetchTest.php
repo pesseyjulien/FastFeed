@@ -58,4 +58,49 @@ class FastFeedFetchTest extends AbstractFastFeedTest
         $this->fastFeed->pushParser(new RSSParser());
         $this->fastFeed->fetch('desarrolla2');
     }
+
+    public function testFetchWithConditionalGet304()
+    {
+        $cacheMock = $this->createMock(\Desarrolla2\Cache\CacheInterface::class);
+        $cacheMock->expects($this->once())
+            ->method('has')
+            ->willReturn(true);
+        $cacheMock->expects($this->once())
+            ->method('get')
+            ->willReturn([
+                'etag' => '"12345"',
+                'last_modified' => 'Wed, 21 Oct 2015 07:28:00 GMT',
+                'content' => 'cached-xml-content'
+            ]);
+
+        $this->fastFeed->setCache($cacheMock);
+
+        $responseMock = $this->getMockBuilder(ResponseInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->httpMock->expects($this->once())
+            ->method('request')
+            ->with('GET', 'http://desarrolla2.com/feed/', $this->callback(function ($options) {
+                return isset($options['headers']['If-None-Match']) &&
+                       $options['headers']['If-None-Match'] === '"12345"' &&
+                       isset($options['headers']['If-Modified-Since']) &&
+                       $options['headers']['If-Modified-Since'] === 'Wed, 21 Oct 2015 07:28:00 GMT';
+            }))
+            ->willReturn($responseMock);
+
+        $responseMock->expects($this->once())
+            ->method('getStatusCode')
+            ->willReturn(304);
+
+        $parserMock = $this->createMock(\FastFeed\Parser\ParserInterface::class);
+        $parserMock->expects($this->once())
+            ->method('getNodes')
+            ->with('cached-xml-content')
+            ->willReturn([]);
+
+        $this->fastFeed->addFeed('desarrolla2', 'http://desarrolla2.com/feed/');
+        $this->fastFeed->pushParser($parserMock);
+        $this->fastFeed->fetch('desarrolla2');
+    }
 }

@@ -42,4 +42,38 @@ class AtomParserTest extends AbstractAtomParserTest
             'Fail asserting that '.$fileName.' has '.$expectedNodes.' nodes'
         );
     }
+
+    public function testFallbackDate()
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <id>1</id>
+    <title>Test Title</title>
+    <updated>2026-06-04T12:00:00Z</updated>
+  </entry>
+</feed>';
+        $nodes = $this->parser->getNodes($xml);
+        $this->assertCount(1, $nodes);
+        $item = $nodes[0];
+        $this->assertInstanceOf('FastFeed\Item', $item);
+        $this->assertNotFalse($item->getDate());
+        $this->assertEquals(strtotime('2026-06-04T12:00:00Z'), $item->getDate()->getTimestamp());
+    }
+
+    public function testMediaEnclosureLink()
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <id>1</id>
+    <title>Test Enclosure</title>
+    <link rel="enclosure" type="image/png" href="http://example.com/atom-image.png"/>
+  </entry>
+</feed>';
+        $nodes = $this->parser->getNodes($xml);
+        $this->assertCount(1, $nodes);
+        $item = $nodes[0];
+        $this->assertEquals('http://example.com/atom-image.png', $item->getImage());
+    }
 }

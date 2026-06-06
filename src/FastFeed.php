@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -13,6 +15,7 @@
 
 namespace FastFeed;
 
+use Desarrolla2\Cache\CacheInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Log\LoggerInterface;
@@ -47,6 +50,11 @@ class FastFeed implements FastFeedInterface
     protected $logger;
 
     /**
+     * @var CacheInterface|null
+     */
+    protected $cache;
+
+    /**
      * @var array
      */
     protected $parsers = array();
@@ -75,7 +83,7 @@ class FastFeed implements FastFeedInterface
      *
      * @throws LogicException
      */
-    public function addFeed($channel, $feed)
+    public function addFeed(string $channel, string $feed): void
     {
         if (!filter_var($feed, FILTER_VALIDATE_URL)) {
             throw new LogicException('You tried to add a invalid url.');
@@ -89,10 +97,10 @@ class FastFeed implements FastFeedInterface
      * @throws Exception\LogicException
      * @throws GuzzleException
      */
-    public function fetch($channel = 'default')
+    public function fetch(string $channel = 'default'): array
     {
-        if (!is_string($channel)) {
-            throw new LogicException('You tried to add a invalid channel.');
+        if (!isset($this->feeds[$channel])) {
+            throw new LogicException('You tried to fetch a not existent channel');
         }
 
         $items = $this->retrieve($channel);
@@ -109,10 +117,10 @@ class FastFeed implements FastFeedInterface
      *
      * @param string $channel
      *
-     * @return string
+     * @return array
      * @throws LogicException
      */
-    public function getFeed($channel)
+    public function getFeed(string $channel): array
     {
         if (!isset($this->feeds[$channel])) {
             throw new LogicException('You tried to get a not existent channel');
@@ -125,7 +133,7 @@ class FastFeed implements FastFeedInterface
      * @return ParserInterface
      * @throws Exception\LogicException
      */
-    public function popParser()
+    public function popParser(): ParserInterface
     {
         if (!$this->parsers) {
             throw new LogicException('You tried to pop from an empty parsers stack.');
@@ -137,7 +145,7 @@ class FastFeed implements FastFeedInterface
     /**
      * @param ParserInterface $parser
      */
-    public function pushParser(ParserInterface $parser)
+    public function pushParser(ParserInterface $parser): void
     {
         $this->parsers[] = $parser;
     }
@@ -146,7 +154,7 @@ class FastFeed implements FastFeedInterface
      * @return ProcessorInterface
      * @throws Exception\LogicException
      */
-    public function popProcessor()
+    public function popProcessor(): ProcessorInterface
     {
         if (!$this->processors) {
             throw new LogicException('You tried to pop from an empty Processor stack.');
@@ -158,7 +166,7 @@ class FastFeed implements FastFeedInterface
     /**
      * @param ProcessorInterface $processor
      */
-    public function pushProcessor(ProcessorInterface $processor)
+    public function pushProcessor(ProcessorInterface $processor): void
     {
         $this->processors[] = $processor;
     }
@@ -168,7 +176,7 @@ class FastFeed implements FastFeedInterface
      *
      * @return array
      */
-    public function getFeeds()
+    public function getFeeds(): array
     {
         return $this->feeds;
     }
@@ -178,7 +186,7 @@ class FastFeed implements FastFeedInterface
      *
      * @param ClientInterface $guzzle
      */
-    public function setHttpClient(ClientInterface $guzzle)
+    public function setHttpClient(ClientInterface $guzzle): void
     {
         $this->http = $guzzle;
     }
@@ -186,9 +194,25 @@ class FastFeed implements FastFeedInterface
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
+    }
+
+    /**
+     * @param CacheInterface $cache
+     */
+    public function setCache(CacheInterface $cache): void
+    {
+        $this->cache = $cache;
+    }
+
+    /**
+     * @return CacheInterface|null
+     */
+    public function getCache(): ?CacheInterface
+    {
+        return $this->cache;
     }
 
     /**
@@ -199,11 +223,8 @@ class FastFeed implements FastFeedInterface
      *
      * @throws LogicException
      */
-    public function setFeed($channel, $feed)
+    public function setFeed(string $channel, string $feed): void
     {
-        if (!is_string($channel)) {
-            throw new LogicException('You tried to add a invalid channel.');
-        }
         $this->feeds[$channel] = array();
         $this->addFeed($channel, $feed);
     }
@@ -216,18 +237,66 @@ class FastFeed implements FastFeedInterface
      */
     protected function get($url)
     {
-        $response = $this->http->request('GET', $url);
+        $headers = [];
+        $cacheKey = 'ff_http_' . md5($url);
+        $cached = null;
+
+        if ($this->cache) {
+            try {
+                if ($this->cache->has($cacheKey)) {
+                    $cached = $this->cache->get($cacheKey);
+                }
+            } catch (\Exception $e) {
+                // Ignore cache failures
+            }
+        }
+
+        if (is_array($cached)) {
+            if (!empty($cached['etag'])) {
+                $headers['If-None-Match'] = $cached['etag'];
+            }
+            if (!empty($cached['last_modified'])) {
+                $headers['If-Modified-Since'] = $cached['last_modified'];
+            }
+        }
+
+        $response = $this->http->request('GET', $url, [
+            'headers' => $headers,
+            'http_errors' => false,
+        ]);
 
         $statusCode = $response->getStatusCode();
 
-        if ($statusCode < 200 || $statusCode >= 304) {
+        if ($statusCode === 304 && is_array($cached)) {
+            $this->logger->log(LogLevel::INFO, 'retrieved url "'.$url.'" (304 Not Modified)');
+            return $cached['content'];
+        }
+
+        if ($statusCode < 200 || $statusCode >= 300) {
             $this->log('fail with '.$statusCode.' http code in url "'.$url.'" ');
             return null;
         }
 
+        $content = $response->getBody()->getContents();
         $this->logger->log(LogLevel::INFO, 'retrieved url "'.$url.'" ');
 
-        return $response->getBody()->getContents();
+        if ($this->cache) {
+            $etag = $response->getHeaderLine('ETag');
+            $lastModified = $response->getHeaderLine('Last-Modified');
+            if ($etag || $lastModified) {
+                try {
+                    $this->cache->set($cacheKey, [
+                        'etag' => $etag,
+                        'last_modified' => $lastModified,
+                        'content' => $content,
+                    ]);
+                } catch (\Exception $e) {
+                    // Ignore cache set failures
+                }
+            }
+        }
+
+        return $content;
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -26,11 +28,11 @@ class ImageProcessor extends ImagesProcessor
     protected $overrideImage = false;
 
     /**
-     * @param boolean $overrideImage
+     * @param bool $overrideImage
      */
-    public function setOverrideImage($overrideImage)
+    public function setOverrideImage(bool $overrideImage): void
     {
-        $this->overrideImage = (bool) $overrideImage;
+        $this->overrideImage = $overrideImage;
     }
 
     /**
@@ -40,7 +42,7 @@ class ImageProcessor extends ImagesProcessor
      *
      * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
         foreach ($items as $key => $item) {
             $items[$key] = $this->setImage($item);
@@ -54,7 +56,7 @@ class ImageProcessor extends ImagesProcessor
      *
      * @return Item
      */
-    protected function setImage(Item $item)
+    protected function setImage(Item $item): Item
     {
         if ($item->hasImage() && !$this->overrideImage) {
             return $item;
@@ -67,10 +69,8 @@ class ImageProcessor extends ImagesProcessor
 
     /**
      * @param Item $item
-     *
-     * @return bool|string
      */
-    protected function setImageFromContent(Item $item)
+    protected function setImageFromContent(Item $item): void
     {
         $images = $this->getImages($item->getContent());
 

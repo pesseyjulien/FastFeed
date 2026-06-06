@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -28,5 +30,5 @@ interface AggregatorInterface
      * @param DOMElement $node
      * @param Item       $item
      */
-    public function process(DOMElement $node, Item $item);
+    public function process(DOMElement $node, Item $item): void;
 }

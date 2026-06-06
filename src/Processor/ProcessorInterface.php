@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -23,7 +25,7 @@ interface ProcessorInterface
      *
      * @param array $items
      *
-     * @return $items
+     * @return array
      */
-    public function process(array $items);
+    public function process(array $items): array;
 }

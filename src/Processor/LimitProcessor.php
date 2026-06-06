@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -27,7 +29,7 @@ class LimitProcessor implements ProcessorInterface
     /**
      * @param int $limit
      */
-    public function __construct($limit)
+    public function __construct(int $limit)
     {
         $this->setLimit($limit);
     }
@@ -37,9 +39,9 @@ class LimitProcessor implements ProcessorInterface
      *
      * @param int $limit
      */
-    public function setLimit($limit)
+    public function setLimit(int $limit): void
     {
-        $this->limit = (int) $limit;
+        $this->limit = $limit;
     }
 
     /**
@@ -47,21 +49,12 @@ class LimitProcessor implements ProcessorInterface
      *
      * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
         if (!$this->limit) {
             return $items;
         }
-        $total = count($items);
-        if ($this->limit > $total) {
-            return $items;
-        }
-        for ($i = $this->limit; $i < $total; $i++) {
-            if (isset($items[$i])) {
-                unset($items[$i]);
-            }
-        }
 
-        return $items;
+        return array_slice($items, 0, $this->limit);
     }
 }

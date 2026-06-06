@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -30,7 +32,7 @@ class RSSContentAggregator extends AbstractAggregator implements AggregatorInter
      * @param DOMElement $node
      * @param Item       $item
      */
-    public function process(DOMElement $node, Item $item)
+    public function process(DOMElement $node, Item $item): void
     {
         $this->setContent($node, $item);
     }
@@ -40,11 +42,11 @@ class RSSContentAggregator extends AbstractAggregator implements AggregatorInter
      * @param DOMElement $node
      * @param Item       $item
      */
-    protected function setContent(DOMElement $node, Item $item)
+    protected function setContent(DOMElement $node, Item $item): void
     {
         $value = $this->getNodeValueByTagNameNS($node, 'http://purl.org/rss/1.0/modules/content/', 'encoded');
 
-        if ($value) {
+        if ($value !== false && $value !== '') {
             $item->setContent($value);
         }
     }

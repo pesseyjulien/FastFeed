@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -21,9 +23,9 @@ interface ParserInterface
     /**
      * Retrieve a Items's array
      *
-     * @param $content
+     * @param string $content
      *
      * @return array
      */
-    public function getNodes($content);
+    public function getNodes(string $content): array;
 }

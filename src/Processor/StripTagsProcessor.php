@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -21,22 +23,22 @@ use FastFeed\Item;
 class StripTagsProcessor implements ProcessorInterface
 {
     /**
-     * @var
+     * @var array
      */
-    protected $allowedTags = array('content', 'intro');
+    protected $allowedTags = array('content' => '', 'intro' => '');
 
     /**
-     * @param mixed $allowedTags
+     * @param string $allowedTags
      */
-    public function setAllowedTagsForContent($allowedTags)
+    public function setAllowedTagsForContent(string $allowedTags): void
     {
         $this->allowedTags['content'] = $allowedTags;
     }
 
     /**
-     * @param mixed $allowedTags
+     * @param string $allowedTags
      */
-    public function setAllowedTagsForIntro($allowedTags)
+    public function setAllowedTagsForIntro(string $allowedTags): void
     {
         $this->allowedTags['intro'] = $allowedTags;
     }
@@ -46,9 +48,9 @@ class StripTagsProcessor implements ProcessorInterface
      *
      * @param array $items
      *
-     * @return array $items
+     * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
         foreach ($items as $key => $item) {
             $items[$key] = $this->doClean($item);
@@ -62,7 +64,7 @@ class StripTagsProcessor implements ProcessorInterface
      *
      * @return Item
      */
-    protected function doClean(Item $item)
+    protected function doClean(Item $item): Item
     {
         $item->setIntro(strip_tags($item->getIntro(), $this->allowedTags['intro']));
         $item->setContent(strip_tags($item->getContent(), $this->allowedTags['content']));

@@ -9,17 +9,12 @@
     </testsuites>
 
     <filter>
-        <blacklist>
-            <directory>./tests</directory>
-            <directory>/usr/share/pear/</directory>
-            <directory>./build</directory>
-            <directory>./cache</directory>
-            <directory>./vendor</directory>
-        </blacklist>
+        <whitelist>
+            <directory suffix=".php">./src</directory>
+        </whitelist>
     </filter>
 
     <logging>
-        <log type="coverage-html" target="build/coverage" title="FastFeed" charset="UTF-8"
-             yui="true" highlight="true" lowUpperBound="20" highLowerBound="80"/>
+        <log type="coverage-html" target="build/coverage" lowUpperBound="20" highLowerBound="80"/>
     </logging>
 </phpunit>

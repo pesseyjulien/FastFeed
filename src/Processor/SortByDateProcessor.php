@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -26,22 +28,21 @@ class SortByDateProcessor implements ProcessorInterface
      *
      * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
-        $total = count($items);
-        for ($i = 1; $i < $total; $i++) {
-            for ($j = 0; $j < $total - $i; $j++) {
-                if (!$items[$j]->getDate() || !$items[$j + 1]->getDate()) {
-                    continue;
-                }
-                if ($items[$j]->getDate()->getTimestamp() > $items[$j + 1]->getDate()->getTimestamp()) {
-                    continue;
-                }
-                $aux = $items[$j + 1];
-                $items[$j + 1] = $items[$j];
-                $items[$j] = $aux;
+        usort($items, function ($a, $b) {
+            $dateA = $a->getDate();
+            $dateB = $b->getDate();
+            if (!$dateA || !$dateB) {
+                return 0;
             }
-        }
+            $tA = $dateA->getTimestamp();
+            $tB = $dateB->getTimestamp();
+            if ($tA === $tB) {
+                return 0;
+            }
+            return ($tA > $tB) ? -1 : 1;
+        });
 
         return $items;
     }

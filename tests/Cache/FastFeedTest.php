@@ -63,7 +63,7 @@ class FastFeedTest extends AbstractFastFeedTest
     public function testWithOutCache()
     {
         $this->cacheMock
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('has')
             ->will($this->returnValue(false));
 

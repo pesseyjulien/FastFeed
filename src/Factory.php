@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -26,7 +28,7 @@ abstract class Factory
     /**
      * @return FastFeed
      */
-    public static function create()
+    public static function create(): FastFeed
     {
         $fastFeed = new FastFeed(new Client(), new Logger(false));
         $fastFeed->pushParser(new RSSParser());

@@ -60,4 +60,13 @@ class StripTagsProcessorTest extends TestCase
         $this->assertEquals($expected, $this->items[0]->getIntro());
         $this->assertEquals($expected, $this->items[0]->getContent());
     }
+
+    public function testProcessDefault()
+    {
+        $this->items[0]->setIntro('<p>hi</p>');
+        $this->items[0]->setContent('<p>hi</p>');
+        $this->items = $this->processor->process($this->items);
+        $this->assertEquals('hi', $this->items[0]->getIntro());
+        $this->assertEquals('hi', $this->items[0]->getContent());
+    }
 }

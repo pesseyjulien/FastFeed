@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -30,10 +32,10 @@ abstract class AbstractParser extends AbstractDomParser
     protected $aggregators = array();
 
     /**
-     * @return mixed
+     * @return AggregatorInterface
      * @throws \FastFeed\Exception\LogicException
      */
-    public function popAggregator()
+    public function popAggregator(): AggregatorInterface
     {
         if (!$this->aggregators) {
             throw new LogicException('You tried to pop from an empty Aggregator stack.');
@@ -45,7 +47,7 @@ abstract class AbstractParser extends AbstractDomParser
     /**
      * @param AggregatorInterface $aggregator
      */
-    public function pushAggregator(AggregatorInterface $aggregator)
+    public function pushAggregator(AggregatorInterface $aggregator): void
     {
         $this->aggregators[] = $aggregator;
     }
@@ -54,7 +56,7 @@ abstract class AbstractParser extends AbstractDomParser
      * @param DOMElement $node
      * @param Item       $item
      */
-    protected function executeAggregators(DOMElement $node, Item $item)
+    protected function executeAggregators(DOMElement $node, Item $item): void
     {
         foreach ($this->aggregators as $aggregator) {
             $aggregator->process($node, $item);
@@ -64,18 +66,18 @@ abstract class AbstractParser extends AbstractDomParser
     /**
      * @return array
      */
-    abstract protected function getPropertiesMapping();
+    abstract protected function getPropertiesMapping(): array;
 
     /**
      * @param DOMElement $node
      * @param Item       $item
      */
-    protected function setProperties(DOMElement $node, Item $item)
+    protected function setProperties(DOMElement $node, Item $item): void
     {
         $propertiesMapping = $this->getPropertiesMapping();
         foreach ($propertiesMapping as $methodName => $propertyName) {
             $value = $this->getNodeValueByTagName($node, $propertyName);
-            if ($value) {
+            if ($value !== false && $value !== '') {
                 $item->$methodName($value);
             }
         }

@@ -149,7 +149,29 @@ class AtomParserFirstElementTest extends AbstractAtomParserTest
         $content = $this->getContent($fileName);
         $item = $this->getItem($content);
 
-        $expected = null;
+        $dom = new \DOMDocument();
+        @$dom->loadXML(trim($content));
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('ns', 'http://www.w3.org/2005/Atom');
+        $xpath->registerNamespace('media', 'http://search.yahoo.com/mrss/');
+        
+        $expected = '';
+        
+        $enclosures = $xpath->query("//ns:entry[1]/ns:link[@rel='enclosure']");
+        if ($enclosures->length) {
+            $type = $enclosures->item(0)->getAttribute('type');
+            $href = $enclosures->item(0)->getAttribute('href');
+            if ($href && (strpos($type, 'image/') === 0 || preg_match('/\.(jpg|jpeg|png|gif|webp|svg)/i', $href))) {
+                $expected = $href;
+            }
+        }
+        
+        if (!$expected) {
+            $mediaThumbnails = $xpath->query("//ns:entry[1]/media:thumbnail");
+            if ($mediaThumbnails->length) {
+                $expected = $mediaThumbnails->item(0)->getAttribute('url');
+            }
+        }
 
         $this->assertEquals(
             $expected,

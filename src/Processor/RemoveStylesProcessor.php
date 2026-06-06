@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -27,7 +29,7 @@ class RemoveStylesProcessor implements ProcessorInterface
      *
      * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
         foreach ($items as $key => $item) {
             $items[$key] = $this->removeStyle($item);
@@ -41,10 +43,10 @@ class RemoveStylesProcessor implements ProcessorInterface
      *
      * @return Item
      */
-    public function removeStyle(Item $item)
+    public function removeStyle(Item $item): Item
     {
-        $item->setIntro(preg_replace('/(<[^>]+) style=".*?"/i', '$1', $item->getIntro()));
-        $item->setContent(preg_replace('/(<[^>]+) style=".*?"/i', '$1', $item->getContent()));
+        $item->setIntro(preg_replace('/(<[^>]+) style=(["\']).*?\2/i', '$1', $item->getIntro()));
+        $item->setContent(preg_replace('/(<[^>]+) style=(["\']).*?\2/i', '$1', $item->getContent()));
 
         return $item;
     }

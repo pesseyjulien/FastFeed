@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -30,7 +32,7 @@ class ImagesProcessor implements ProcessorInterface
     /**
      * @param array $ignoredPatterns
      */
-    public function setIgnoredPatterns(array $ignoredPatterns)
+    public function setIgnoredPatterns(array $ignoredPatterns): void
     {
         $this->ignoredPatterns = array();
         foreach ($ignoredPatterns as $ignoredPattern) {
@@ -39,17 +41,17 @@ class ImagesProcessor implements ProcessorInterface
     }
 
     /**
-     * @param $ignoredPattern
+     * @param string $ignoredPattern
      */
-    public function addIgnoredPattern($ignoredPattern)
+    public function addIgnoredPattern(string $ignoredPattern): void
     {
-        $this->ignoredPatterns[] = (string) $ignoredPattern;
+        $this->ignoredPatterns[] = $ignoredPattern;
     }
 
     /**
      * @return array
      */
-    public function getIgnoredPatterns()
+    public function getIgnoredPatterns(): array
     {
         return $this->ignoredPatterns;
     }
@@ -61,7 +63,7 @@ class ImagesProcessor implements ProcessorInterface
      *
      * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
         foreach ($items as $key => $item) {
             $items[$key] = $this->setImages($item);
@@ -75,7 +77,7 @@ class ImagesProcessor implements ProcessorInterface
      *
      * @return Item
      */
-    protected function setImages(Item $item)
+    protected function setImages(Item $item): Item
     {
         $this->setImagesFromContent($item);
 
@@ -84,10 +86,8 @@ class ImagesProcessor implements ProcessorInterface
 
     /**
      * @param Item $item
-     *
-     * @return bool|string
      */
-    protected function setImagesFromContent(Item $item)
+    protected function setImagesFromContent(Item $item): void
     {
         $allImages = $this->getImages($item->getContent());
         $images = array();
@@ -103,11 +103,11 @@ class ImagesProcessor implements ProcessorInterface
     }
 
     /**
-     * @param $imageSrc
+     * @param string $imageSrc
      *
      * @return bool
      */
-    protected function isOnIgnoredPatterns($imageSrc)
+    protected function isOnIgnoredPatterns(string $imageSrc): bool
     {
         foreach ($this->ignoredPatterns as $ignoredPattern) {
             if (preg_match($ignoredPattern, $imageSrc)) {
@@ -119,11 +119,11 @@ class ImagesProcessor implements ProcessorInterface
     }
 
     /**
-     * @param $content
+     * @param string $content
      *
-     * @return bool|DOMDocument
+     * @return DOMDocument|bool
      */
-    protected function createDOM($content)
+    protected function createDOM(string $content)
     {
         if (!$content) {
             return false;
@@ -136,11 +136,11 @@ class ImagesProcessor implements ProcessorInterface
     }
 
     /**
-     * @param $content
+     * @param string $content
      *
-     * @return bool|array
+     * @return array
      */
-    protected function getImages($content)
+    protected function getImages(string $content): array
     {
         $images = array();
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -20,241 +22,133 @@ use DateTime;
  */
 class Item
 {
-    /**
-     * @var string
-     */
-    protected $itemId;
 
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $intro;
-
-    /**
-     * @var string
-     */
-    protected $content;
-
-    /**
-     * @var string
-     */
-    protected $source;
-
-    /**
-     * @var string
-     */
-    protected $author;
-
-    /**
-     * @var string
-     */
-    protected $image;
-
-    /**
-     * @var DateTime
-     */
-    protected $date;
-
-    /**
-     * @var array
-     */
-    protected $extra = array();
-
-    /**
-     * @var array
-     */
-    protected $tags = array();
+    protected ?string $itemId = null;
+    protected ?string $name = null;
+    protected ?string $intro = null;
+    protected ?string $content = null;
+    protected ?string $source = null;
+    protected ?string $author = null;
+    protected ?string $image = null;
+    protected ?DateTime $date = null;
+    protected array $extra = [];
+    protected array $tags = [];
 
     /**
      * @param string $itemId
      */
-    public function setId($itemId)
+    public function setId(string $itemId): void
     {
-        $this->itemId = (string) $itemId;
+        $this->itemId = $itemId;
     }
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function getId(): string
     {
         return $this->itemId;
     }
 
-    /**
-     * @return string
-     */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName($name)
+    public function setName(string $name): void
     {
-        $this->name = (string) $name;
+        $this->name = $name;
     }
 
-    /**
-     * @param string $intro
-     */
-    public function setIntro($intro)
+    public function setIntro(string $intro): void
     {
-        $this->intro = (string) $intro;
+        $this->intro = $intro;
     }
 
-    /**
-     * @return string
-     */
-    public function getIntro()
+    public function getIntro(): ?string
     {
         return $this->intro;
     }
 
-    /**
-     * @param string $content
-     */
-    public function setContent($content)
+    public function setContent(string $content): void
     {
-        $this->content = (string) $content;
+        $this->content = $content;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasImage()
+    public function hasImage(): bool
     {
-        return $this->image !== null && strlen($this->image);
+        return $this->image !== null && strlen($this->image) > 0;
     }
 
-    /**
-     * @param string $image
-     */
-    public function setImage($image)
+    public function setImage(string $image): void
     {
-        $this->image = (string) $image;
+        $this->image = $image;
     }
 
-    /**
-     * @return string
-     */
-    public function getImage()
+    public function getImage(): ?string
     {
         return $this->image;
     }
 
-    /**
-     * @param string $tag
-     */
-    public function addTag($tag)
+    public function addTag(string $tag): void
     {
-        $this->tags[] = (string) $tag;
+        $this->tags[] = $tag;
     }
 
-    /**
-     * @param array $tags
-     */
-    public function setTags(array $tags)
+    public function setTags(array $tags): void
     {
         $this->tags = array();
         foreach ($tags as $tag) {
-            $this->addTag($tag);
+            $this->addTag((string) $tag);
         }
     }
 
-    /**
-     * @return array
-     */
-    public function getTags()
+    public function getTags(): array
     {
         return $this->tags;
     }
 
-    /**
-     * @param string $source
-     */
-    public function setSource($source)
+    public function setSource(string $source): void
     {
-        $this->source = (string) $source;
+        $this->source = $source;
     }
 
-    /**
-     * @return string
-     */
-    public function getSource()
+    public function getSource(): ?string
     {
         return $this->source;
     }
 
-    /**
-     * @param string $author
-     */
-    public function setAuthor($author)
+    public function setAuthor(string $author): void
     {
-        $this->author = (string) $author;
+        $this->author = $author;
     }
 
-    /**
-     * @return string
-     */
-    public function getAuthor()
+    public function getAuthor(): ?string
     {
         return $this->author;
     }
 
-    /**
-     * @param DateTime $date
-     */
-    public function setDate(DateTime $date)
+    public function setDate(DateTime $date): void
     {
         $this->date = $date;
     }
 
-    /**
-     * @return DateTime
-     */
-    public function getDate()
+    public function getDate(): ?DateTime
     {
-        if (!$this->date) {
-            return false;
-        }
-
         return $this->date;
     }
 
-    /**
-     * @param $key
-     * @param $value
-     */
-    public function setExtra($key, $value)
+    public function setExtra(string $key, $value): void
     {
         $this->extra[$key] = $value;
     }
 
-    /**
-     * @param $key
-     *
-     * @return bool
-     */
-    public function getExtra($key)
+    public function getExtra(string $key): mixed
     {
         if (!isset($this->extra[$key])) {
-            return;
+            return null;
         }
 
         return $this->extra[$key];

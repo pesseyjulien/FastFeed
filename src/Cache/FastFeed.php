@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -13,8 +15,6 @@
 
 namespace FastFeed\Cache;
 
-use Desarrolla2\Cache\CacheInterface;
-
 use FastFeed\Exception\LogicException;
 use FastFeed\FastFeed as FastFeedBase;
 use Psr\SimpleCache\InvalidArgumentException;
@@ -25,33 +25,12 @@ use Psr\SimpleCache\InvalidArgumentException;
 class FastFeed extends FastFeedBase
 {
     /**
-     * @var CacheInterface;
-     */
-    protected $cache;
-
-    /**
-     * @param CacheInterface $cache
-     */
-    public function setCache(CacheInterface $cache)
-    {
-        $this->cache = $cache;
-    }
-
-    /**
-     * @return CacheInterface
-     */
-    public function getCache()
-    {
-        return $this->cache;
-    }
-
-    /**
      * @param string $channel
      *
      * @return array
      * @throws InvalidArgumentException
      */
-    public function fetch($channel = 'default')
+    public function fetch(string $channel = 'default'): array
     {
         $items = $this->getFromCache($channel);
         if (!$items) {
@@ -68,7 +47,7 @@ class FastFeed extends FastFeedBase
      * @return ?array
      * @throws LogicException|InvalidArgumentException
      */
-    protected function getFromCache($channel)
+    protected function getFromCache(string $channel): ?array
     {
         if (!$this->cache) {
             throw new LogicException('You need set to cache provider');
@@ -85,7 +64,7 @@ class FastFeed extends FastFeedBase
      * @param array $items
      * @throws InvalidArgumentException
      */
-    protected function setToCache($channel, $items)
+    protected function setToCache(string $channel, array $items): void
     {
         $this->getCache()->set($channel, $items);
     }

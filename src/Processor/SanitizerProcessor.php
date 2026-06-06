@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -23,16 +25,16 @@ use FastFeed\Item;
 class SanitizerProcessor implements ProcessorInterface
 {
     /**
-     * @var HTMLPurifier
+     * @var \HTMLPurifier
      */
     protected $purifier;
 
     /**
-     * @param null $cacheDirectory
+     * @param string|null $cacheDirectory
      *
      * @throws \FastFeed\Exception\InvalidArgumentException
      */
-    public function __construct($cacheDirectory = null)
+    public function __construct(?string $cacheDirectory = null)
     {
         if (!$cacheDirectory) {
             $cacheDirectory = realpath(sys_get_temp_dir());
@@ -54,7 +56,7 @@ class SanitizerProcessor implements ProcessorInterface
      *
      * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
         foreach ($items as $key => $item) {
             $items[$key] = $this->doClean($item);
@@ -66,9 +68,9 @@ class SanitizerProcessor implements ProcessorInterface
     /**
      * @param Item $item
      *
-     * @return string
+     * @return Item
      */
-    protected function doClean(Item $item)
+    protected function doClean(Item $item): Item
     {
         $item->setIntro(
             $this->purifier->purify($item->getIntro())

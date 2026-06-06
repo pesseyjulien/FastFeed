@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -22,12 +24,12 @@ use DOMElement;
 abstract class AbstractDomParser
 {
     /**
-     * @param $content
+     * @param string $content
      *
      * @return DOMDocument
      * @throws \FastFeed\Exception\RuntimeException
      */
-    protected function createDocumentFromXML($content)
+    protected function createDocumentFromXML(string $content): DOMDocument
     {
         $previousValue = libxml_use_internal_errors(true);
 
@@ -38,7 +40,7 @@ abstract class AbstractDomParser
         $content = trim($content);
         // Convert to UTF-8 if needed
         $encoding = mb_detect_encoding($content, 'UTF-8, ISO-8859-1, ISO-8859-15', true);
-        if ($encoding !== 'UTF-8') {
+        if ($encoding && $encoding !== 'UTF-8') {
             $content = mb_convert_encoding($content, 'UTF-8', $encoding);
         }
 
@@ -51,17 +53,17 @@ abstract class AbstractDomParser
 
     /**
      * @param DOMElement $node
-     * @param            $tagName
+     * @param string     $tagName
      *
      * @return bool|string
      * @throws \FastFeed\Exception\RuntimeException
      */
-    protected function getNodeValueByTagName(DOMElement $node, $tagName)
+    protected function getNodeValueByTagName(DOMElement $node, string $tagName)
     {
         $results = $node->getElementsByTagName($tagName);
         for ($i = 0; $i < $results->length; $i++) {
             $result = $results->item($i);
-            if (!$result->nodeValue) {
+            if ($result->nodeValue === null || $result->nodeValue === '') {
                 continue;
             }
 
@@ -73,13 +75,13 @@ abstract class AbstractDomParser
 
     /**
      * @param DOMElement $node
-     * @param            $namespace
-     * @param            $tagName
+     * @param string     $namespace
+     * @param string     $tagName
      *
      * @return bool|string
      * @throws \FastFeed\Exception\RuntimeException
      */
-    protected function getNodeValueByTagNameNS(DOMElement $node, $namespace, $tagName)
+    protected function getNodeValueByTagNameNS(DOMElement $node, string $namespace, string $tagName)
     {
         $results = $node->getElementsByTagNameNS($namespace, $tagName);
         for ($i = 0; $i < $results->length; $i++) {
@@ -96,12 +98,12 @@ abstract class AbstractDomParser
 
     /**
      * @param DOMElement $node
-     * @param            $tagName
+     * @param string     $tagName
      *
      * @return array
      * @throws \FastFeed\Exception\RuntimeException
      */
-    protected function getNodeValuesByTagName(DOMElement $node, $tagName)
+    protected function getNodeValuesByTagName(DOMElement $node, string $tagName): array
     {
         $values = array();
         $results = $node->getElementsByTagName($tagName);
@@ -118,13 +120,13 @@ abstract class AbstractDomParser
 
     /**
      * @param DOMElement $node
-     * @param            $tagName
-     * @param            $propertyName
+     * @param string     $tagName
+     * @param string     $propertyName
      *
      * @return array
      * @throws \FastFeed\Exception\RuntimeException
      */
-    protected function getNodePropertyByTagName(\DOMElement $node, $tagName, $propertyName)
+    protected function getNodePropertyByTagName(\DOMElement $node, string $tagName, string $propertyName): array
     {
         $values = array();
         $results = $node->getElementsByTagName($tagName);

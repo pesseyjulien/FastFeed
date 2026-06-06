@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the FastFeed package.
  *
@@ -26,9 +28,9 @@ class PathProcessor implements ProcessorInterface
      *
      * @param array $items
      *
-     * @return array $items
+     * @return array
      */
-    public function process(array $items)
+    public function process(array $items): array
     {
         foreach ($items as $key => $item) {
             $items[$key] = $this->fixPaths($item);
@@ -42,7 +44,7 @@ class PathProcessor implements ProcessorInterface
      *
      * @return Item
      */
-    protected function fixPaths(Item $item)
+    protected function fixPaths(Item $item): Item
     {
         $url = new Url($item->getSource());
         $item->setIntro($this->getFixedText($item->getIntro(), $url->getFullHost()));
@@ -52,12 +54,12 @@ class PathProcessor implements ProcessorInterface
     }
 
     /**
-     * @param $text
-     * @param $domain
+     * @param string $text
+     * @param string $domain
      *
-     * @return mixed
+     * @return string
      */
-    protected function getFixedText($text, $domain)
+    protected function getFixedText(string $text, string $domain): string
     {
         $text = str_ireplace('href="/', 'href="'.$domain.'/', $text);
         $text = str_ireplace('href=\'/', 'href=\''.$domain.'/', $text);
